@@ -74,8 +74,18 @@ function generateQuestion() {
         gameState.correctAnswer = gameState.currentNum1 / gameState.currentNum2;
         
         num1Display.textContent = gameState.currentNum1;
-        num2Display.textContent = '÷';
+        num1Display.style.marginRight = '10px';
+        num2Display.textContent = gameState.currentNum2;
         num2Display.style.marginLeft = '10px';
+        
+        // Update question display to show division symbol
+        const questionDiv = document.querySelector('.question');
+        questionDiv.innerHTML = `<span id="num1">${gameState.currentNum1}</span> ÷ <span id="num2">${gameState.currentNum2}</span> = ?`;
+        
+        // Re-attach event listeners to new elements
+        document.querySelectorAll('#num1, #num2').forEach(el => {
+            el.id = el.id; // Keep their IDs
+        });
     } else {
         // Multiplication
         const multiplier = parseInt(selectedTable);
@@ -85,15 +95,26 @@ function generateQuestion() {
         
         num1Display.textContent = gameState.currentNum1;
         num2Display.textContent = gameState.currentNum2;
-        num2Display.style.marginLeft = '0';
+        
+        // Update question display to show multiplication symbol
+        const questionDiv = document.querySelector('.question');
+        questionDiv.innerHTML = `<span id="num1">${gameState.currentNum1}</span> × <span id="num2">${gameState.currentNum2}</span> = ?`;
+        
+        // Re-attach references
+        document.querySelectorAll('#num1, #num2').forEach(el => {
+            el.id = el.id; // Keep their IDs
+        });
     }
 
     // Generate answer options
     generateAnswerOptions();
 
-    // Clear previous feedback
+    // Clear previous feedback - GOED ALLES WISSEN
     answerBtns.forEach(btn => {
         btn.classList.remove('correct', 'wrong');
+        btn.style.background = 'white';
+        btn.style.color = '#c71585';
+        btn.style.borderColor = '#ffb6d9';
         btn.disabled = false;
     });
 }
@@ -136,8 +157,10 @@ function handleAnswer(e) {
         btn.classList.add('correct');
         gameState.score++;
         scoreDisplay.textContent = gameState.score;
+        playCorrectSound(); // Geluid voor goed antwoord
     } else {
         btn.classList.add('wrong');
+        playWrongSound(); // Geluid voor fout antwoord
         // Show correct answer
         answerBtns.forEach(b => {
             if (parseInt(b.textContent) === gameState.correctAnswer) {
@@ -204,6 +227,10 @@ function endGame() {
     // Show end screen
     quizScreen.classList.remove('active');
     endScreen.classList.add('active');
+
+    // Play success sound and speak the score
+    playSuccessSound();
+    speakScore(gameState.score);
 }
 
 // Reset Game
@@ -294,3 +321,138 @@ function playBeep() {
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.1);
 }
+
+// Success Sound - twee beeps
+function playSuccessSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Eerste beep
+        let osc = audioContext.createOscillator();
+        let gain = audioContext.createGain();
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.frequency.value = 600;
+        gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+        osc.start(audioContext.currentTime);
+        osc.stop(audioContext.currentTime + 0.15);
+
+        // Tweede beep (hoger)
+        setTimeout(() => {
+            osc = audioContext.createOscillator();
+            gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.frequency.value = 900;
+            gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 0.15);
+        }, 200);
+    } catch (e) {
+        console.log('Audio niet beschikbaar');
+    }
+}
+
+// Goed antwoord geluid
+function playCorrectSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Twee opeenvolgende hoge beeps - veel zachter en helderder
+        let frequencies = [1200, 1500];
+        let delay = 0;
+        
+        frequencies.forEach(freq => {
+            setTimeout(() => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.03, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.005, audioContext.currentTime + 0.06);
+                osc.start(audioContext.currentTime);
+                osc.stop(audioContext.currentTime + 0.06);
+            }, delay);
+            delay += 80;
+        });
+    } catch (e) {
+        console.log('Audio niet beschikbaar');
+    }
+}
+
+// Fout antwoord geluid
+function playWrongSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Twee lage beeps - veel zachter
+        let frequencies = [600, 450];
+        let delay = 0;
+        
+        frequencies.forEach(freq => {
+            setTimeout(() => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.03, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.005, audioContext.currentTime + 0.08);
+                osc.start(audioContext.currentTime);
+                osc.stop(audioContext.currentTime + 0.08);
+            }, delay);
+            delay += 100;
+        });
+    } catch (e) {
+        console.log('Audio niet beschikbaar');
+    }
+}
+
+// Spreek de score uit
+function speakScore(score) {
+    // Check of browser speech API ondersteunt
+    const SpeechSynthesisUtterance = window.SpeechSynthesisUtterance || window.webkitSpeechSynthesisUtterance;
+    
+    if (!SpeechSynthesisUtterance) {
+        console.log('Speech API niet beschikbaar');
+        return;
+    }
+
+    // Wacht even voor geluid
+    setTimeout(() => {
+        const utterance = new SpeechSynthesisUtterance();
+        utterance.text = `Wauw! Jij haalde een score van ${score} op 25!`;
+        utterance.lang = 'nl-NL'; // Nederlands
+        utterance.rate = 1; // Normale snelheid
+        utterance.pitch = 2; // Heel hoog voor vrolijk meisjes stemgeluid
+        utterance.volume = 1; // Vol volume
+        
+        // Laad alle beschikbare stemmen
+        const voices = window.speechSynthesis.getVoices();
+        
+        // Zoek naar vrouwelijke/meisjes stemmen (prioriteit volgorde)
+        const femaleVoice = voices.find(voice => {
+            const name = voice.name.toLowerCase();
+            return name.includes('female') || 
+                   name.includes('woman') ||
+                   name.includes('girl') ||
+                   name.includes('claire') ||
+                   name.includes('moira') ||
+                   name.includes('samantha') ||
+                   name.includes('victoria') ||
+                   name.includes('ava') ||
+                   (!voice.default && !name.includes('male') && voice.lang.includes('nl'));
+        });
+        
+        if (femaleVoice) {
+            utterance.voice = femaleVoice;
+        }
+        
+        window.speechSynthesis.cancel(); // Stop vorige spraak
+        window.speechSynthesis.speak(utterance);
+    }, 500);
+}
+
