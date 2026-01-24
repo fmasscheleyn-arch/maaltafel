@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maaltafels Spel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Scherm 1: Kies Maaltafels -->
+    <div id="selectScreen" class="screen active">
+        <div class="container">
+            <h1>🎮 Maaltafels Oefenen</h1>
+            <p class="subtitle">Selecteer welke maaltafels je wilt oefenen</p>
+            
+            <div class="tables-grid">
+                <label class="checkbox-item">
+                    <input type="checkbox" value="1" checked> 1x
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="2" checked> 2x
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="3" checked> 3x
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="4" checked> 4x
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="5" checked> 5x
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="6"> 6x
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="7"> 7x
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="8"> 8x
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="9"> 9x
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="10"> 10x
+                </label>
+            </div>
+            
+            <button id="startBtn" class="btn-start">Start Spel 🚀</button>
+        </div>
+    </div>
+
+    <!-- Scherm 2: Quiz -->
+    <div id="quizScreen" class="screen">
+        <div class="container">
+            <div class="quiz-header">
+                <div class="score">Score: <span id="score">0</span>/10</div>
+                <div class="timer">⏱️ <span id="timer">0:00</span></div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question">
+                    <span id="num1">5</span> × <span id="num2">3</span> = ?
+                </div>
+            </div>
+            
+            <div class="answers-grid">
+                <button class="answer-btn" data-answer="0">0</button>
+                <button class="answer-btn" data-answer="1">1</button>
+                <button class="answer-btn" data-answer="2">2</button>
+                <button class="answer-btn" data-answer="3">3</button>
+                <button class="answer-btn" data-answer="4">4</button>
+                <button class="answer-btn" data-answer="5">5</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scherm 3: Einde Scherm -->
+    <div id="endScreen" class="screen">
+        <div class="container">
+            <h1 id="endMessage">Gefeliciteerd! 🎉</h1>
+            <div class="final-stats">
+                <div class="stat">
+                    <span class="label">Score:</span>
+                    <span id="finalScore" class="value">10/10</span>
+                </div>
+                <div class="stat">
+                    <span class="label">Tijd:</span>
+                    <span id="finalTime" class="value">1:23</span>
+                </div>
+            </div>
+            
+            <div id="fireworks" class="fireworks"></div>
+            
+            <button id="restartBtn" class="btn-start">Opnieuw Spelen 🔄</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
