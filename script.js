@@ -36,7 +36,7 @@ function startGame() {
     // Get selected tables
     gameState.selectedTables = Array.from(checkboxes)
         .filter(cb => cb.checked)
-        .map(cb => parseInt(cb.value));
+        .map(cb => cb.value);
 
     if (gameState.selectedTables.length === 0) {
         alert('Selecteer minstens één maaltabel!');
@@ -65,13 +65,28 @@ function generateQuestion() {
         Math.floor(Math.random() * gameState.selectedTables.length)
     ];
     
-    gameState.currentNum1 = selectedTable;
-    gameState.currentNum2 = Math.floor(Math.random() * 10) + 1;
-    gameState.correctAnswer = gameState.currentNum1 * gameState.currentNum2;
-
-    // Update display
-    num1Display.textContent = gameState.currentNum1;
-    num2Display.textContent = gameState.currentNum2;
+    // Check if it's a division table (starts with 'd')
+    if (selectedTable.toString().startsWith('d')) {
+        // Division
+        const divisor = parseInt(selectedTable.substring(1));
+        gameState.currentNum2 = divisor;
+        gameState.currentNum1 = divisor * (Math.floor(Math.random() * 10) + 1);
+        gameState.correctAnswer = gameState.currentNum1 / gameState.currentNum2;
+        
+        num1Display.textContent = gameState.currentNum1;
+        num2Display.textContent = '÷';
+        num2Display.style.marginLeft = '10px';
+    } else {
+        // Multiplication
+        const multiplier = parseInt(selectedTable);
+        gameState.currentNum1 = multiplier;
+        gameState.currentNum2 = Math.floor(Math.random() * 10) + 1;
+        gameState.correctAnswer = gameState.currentNum1 * gameState.currentNum2;
+        
+        num1Display.textContent = gameState.currentNum1;
+        num2Display.textContent = gameState.currentNum2;
+        num2Display.style.marginLeft = '0';
+    }
 
     // Generate answer options
     generateAnswerOptions();
@@ -134,12 +149,12 @@ function handleAnswer(e) {
     // Move to next question after delay
     gameState.currentQuestion++;
     setTimeout(() => {
-        if (gameState.currentQuestion < 10) {
+        if (gameState.currentQuestion < 25) {
             generateQuestion();
         } else {
             endGame();
         }
-    }, 1000);
+    }, 600);
 }
 
 // Timer
@@ -165,21 +180,25 @@ function endGame() {
 
     // Update end screen
     const endMessage = document.getElementById('endMessage');
+    const barbieMessage = document.getElementById('barbieMessage');
     const finalScore = document.getElementById('finalScore');
     const finalTime = document.getElementById('finalTime');
 
-    if (gameState.score === 10) {
-        endMessage.textContent = '🎉 PERFECT! 10 op 10! 🎉';
+    // Barbie pop zegt je score
+    barbieMessage.textContent = `Wauw, jij haalde een score van ${gameState.score}/25!`;
+
+    if (gameState.score === 25) {
+        endMessage.textContent = '🎉 PERFECT! 25 op 25! 🎉';
         createFireworks();
-    } else if (gameState.score >= 8) {
-        endMessage.textContent = `Geweldig! ${gameState.score}/10! 🌟`;
-    } else if (gameState.score >= 6) {
-        endMessage.textContent = `Goed bezig! ${gameState.score}/10 👍`;
+    } else if (gameState.score >= 20) {
+        endMessage.textContent = `Geweldig! ${gameState.score}/25! 🌟`;
+    } else if (gameState.score >= 15) {
+        endMessage.textContent = `Goed bezig! ${gameState.score}/25 👍`;
     } else {
-        endMessage.textContent = `${gameState.score}/10 - Oefenen! 💪`;
+        endMessage.textContent = `${gameState.score}/25 - Oefenen! 💪`;
     }
 
-    finalScore.textContent = `${gameState.score}/10`;
+    finalScore.textContent = `${gameState.score}/25`;
     finalTime.textContent = timeString;
 
     // Show end screen

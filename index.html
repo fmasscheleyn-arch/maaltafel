@@ -13,6 +13,7 @@
             <h1>🎮 Maaltafels Oefenen</h1>
             <p class="subtitle">Selecteer welke maaltafels je wilt oefenen</p>
             
+            <div class="subtitle" style="font-size: 14px; margin-bottom: 15px;">📚 Maaltafels</div>
             <div class="tables-grid">
                 <label class="checkbox-item">
                     <input type="checkbox" value="1" checked> 1x
@@ -45,6 +46,40 @@
                     <input type="checkbox" value="10"> 10x
                 </label>
             </div>
+
+            <div class="subtitle" style="font-size: 14px; margin: 20px 0 15px 0;">➗ Deeltafels</div>
+            <div class="tables-grid">
+                <label class="checkbox-item">
+                    <input type="checkbox" value="d1"> 1÷
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="d2"> 2÷
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="d3"> 3÷
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="d4"> 4÷
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="d5"> 5÷
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="d6"> 6÷
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="d7"> 7÷
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="d8"> 8÷
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="d9"> 9÷
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="d10"> 10÷
+                </label>
+            </div>
             
             <button id="startBtn" class="btn-start">Start Spel 🚀</button>
         </div>
@@ -54,7 +89,7 @@
     <div id="quizScreen" class="screen">
         <div class="container">
             <div class="quiz-header">
-                <div class="score">Score: <span id="score">0</span>/10</div>
+                <div class="score">Score: <span id="score">0</span>/25</div>
                 <div class="timer">⏱️ <span id="timer">0:00</span></div>
             </div>
             
@@ -79,6 +114,8 @@
     <div id="endScreen" class="screen">
         <div class="container">
             <h1 id="endMessage">Gefeliciteerd! 🎉</h1>
+            <div class="barbie-message" id="barbieMessage">Wauw, jij haalde een score van 10/10!</div>
+            <div class="barbie-pop">💕</div>
             <div class="final-stats">
                 <div class="stat">
                     <span class="label">Score:</span>
