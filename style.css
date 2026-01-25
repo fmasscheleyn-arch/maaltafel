@@ -95,7 +95,7 @@ body {
     background: white;
     padding: 20px;
     border-radius: 15px;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .answers-grid {
@@ -127,12 +127,32 @@ body {
     font-weight: bold;
 }
 
+/* HIER ZIJN DE AANPASSINGEN VOOR HET CORRECTE ANTWOORD */
 .correct-answer {
     text-align: center;
-    color: #2e7d32;
-    font-size: 20px;
-    margin-bottom: 15px;
+    color: #2e7d32; /* Donkergroen */
+    font-size: 32px; /* Veel groter */
+    margin-bottom: 20px;
+    font-weight: 900; /* Extra dikgedrukt */
+    background-color: #e8f5e9; /* Lichtgroene achtergrond om het te doen opvallen */
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #2e7d32;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.barbie-message {
+    text-align: center;
+    font-size: 24px;
+    color: #ff1493;
     font-weight: bold;
+    margin-bottom: 10px;
 }
 
 .barbie-pop { text-align: center; font-size: 40px; animation: bounce 1s infinite; }

@@ -9,6 +9,11 @@ let gameState = {
     isDiv: false
 };
 
+const sounds = {
+    correct: new Audio('https://www.soundjay.com/buttons/sounds/button-37a.mp3'),
+    wrong: new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3')
+};
+
 const selectScreen = document.getElementById('selectScreen');
 const quizScreen = document.getElementById('quizScreen');
 const endScreen = document.getElementById('endScreen');
@@ -30,6 +35,9 @@ function startGame() {
     gameState.selectedTables = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
     if (gameState.selectedTables.length === 0) return alert('Kies een tafel!');
     
+    sounds.correct.load();
+    sounds.wrong.load();
+
     gameState.currentQuestion = 0;
     gameState.score = 0;
     gameState.startTime = Date.now();
@@ -42,7 +50,6 @@ function startGame() {
 }
 
 function generateQuestion() {
-    // Update voortgangsbalk
     const progress = (gameState.currentQuestion / 25) * 100;
     progressBar.style.width = progress + '%';
 
@@ -93,20 +100,26 @@ function handleAnswer(e) {
     answerBtns.forEach(b => b.disabled = true);
     
     if (isCorrect) {
+        sounds.correct.currentTime = 0;
+        sounds.correct.play().catch(err => console.log(err));
+        
         e.target.classList.add('correct');
         gameState.score++;
         document.getElementById('score').textContent = gameState.score;
     } else {
+        sounds.wrong.currentTime = 0;
+        sounds.wrong.play().catch(err => console.log(err));
+
         e.target.classList.add('wrong');
         const correctDiv = document.getElementById('correctAnswer');
         correctDiv.style.display = 'block';
         const opTxt = gameState.isDiv ? ':' : '×';
+        // Tekst met het juiste antwoord tonen
         correctDiv.textContent = `${gameState.currentNum1} ${opTxt} ${gameState.currentNum2} = ${gameState.correctAnswer}`;
     }
 
     gameState.currentQuestion++;
-    // Sneller door bij goed (700ms), rustiger bij fout (2000ms)
-    const delay = isCorrect ? 700 : 2000;
+    const delay = isCorrect ? 700 : 2500; // Iets langer wachten bij fout zodat kind kan lezen
 
     setTimeout(() => {
         document.getElementById('correctAnswer').style.display = 'none';
@@ -132,7 +145,13 @@ function endGame() {
     document.getElementById('finalScore').textContent = `${finalScore}/25`;
     document.getElementById('finalTime').textContent = document.getElementById('timer').textContent;
 
-    // Stem spreekt de eindscore uit
+    const barbieMsgEl = document.getElementById('barbieMessage');
+    if(finalScore >= 20) {
+        barbieMsgEl.textContent = "Wauw, goed gedaan! ✨";
+    } else {
+        barbieMsgEl.textContent = "Goed gedaan, blijven oefenen! 💪";
+    }
+
     let tekst;
     if(finalScore >= 20) {
         tekst = `Wauw! Jij behaalde een topscore van ${finalScore} op 25! Super gedaan!`;
@@ -140,7 +159,6 @@ function endGame() {
         tekst = `Jij behaalde een score van ${finalScore} op 25. Blijf goed oefenen, je kan het!`;
     }
     
-    // Aanpassing: Zegt nu "gedeeld door" in de uitleg als dat nodig is
     speak(tekst);
 }
 
@@ -148,6 +166,6 @@ function speak(text) {
     const msg = new SpeechSynthesisUtterance();
     msg.text = text;
     msg.lang = 'nl-NL';
-    msg.pitch = 1.4; // Iets hoger voor vrolijkheid
+    msg.pitch = 1.4; 
     window.speechSynthesis.speak(msg);
 }
