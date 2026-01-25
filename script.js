@@ -6,7 +6,8 @@ let gameState = {
     currentNum1: 0,
     currentNum2: 0,
     correctAnswer: 0,
-    isDiv: false
+    isDiv: false,
+    theme: 'pink'
 };
 
 const sounds = {
@@ -14,19 +15,46 @@ const sounds = {
     wrong: new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3')
 };
 
+// Schermen
+const themeScreen = document.getElementById('themeScreen');
 const selectScreen = document.getElementById('selectScreen');
 const quizScreen = document.getElementById('quizScreen');
 const endScreen = document.getElementById('endScreen');
+
+// Knoppen en displays
 const startBtn = document.getElementById('startBtn');
 const restartBtn = document.getElementById('restartBtn');
+const backToTheme = document.getElementById('backToTheme');
 const checkboxes = document.querySelectorAll('.checkbox-item input');
 const answerBtns = document.querySelectorAll('.answer-btn');
 const progressBar = document.getElementById('progressBar');
+const themeEmoji = document.getElementById('themeEmoji');
+const scoreDisplay = document.getElementById('score');
 
+// --- THEMA LOGICA ---
+function setTheme(theme) {
+    gameState.theme = theme;
+    if (theme === 'blue') {
+        document.body.classList.add('theme-blue');
+        themeEmoji.textContent = '⚽';
+    } else {
+        document.body.classList.remove('theme-blue');
+        themeEmoji.textContent = '💕';
+    }
+    themeScreen.classList.remove('active');
+    selectScreen.classList.add('active');
+}
+
+backToTheme.addEventListener('click', () => {
+    selectScreen.classList.remove('active');
+    themeScreen.classList.add('active');
+});
+
+// --- SPEL LOGICA ---
 startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', () => {
     endScreen.classList.remove('active');
-    selectScreen.classList.add('active');
+    themeScreen.classList.add('active');
 });
 
 answerBtns.forEach(btn => btn.addEventListener('click', handleAnswer));
@@ -38,9 +66,13 @@ function startGame() {
     sounds.correct.load();
     sounds.wrong.load();
 
+    // Reset de data
     gameState.currentQuestion = 0;
     gameState.score = 0;
     gameState.startTime = Date.now();
+    
+    // CORRIGEER SCORE DISPLAY: Meteen op nul zetten in de HTML bij start
+    scoreDisplay.textContent = '0';
     
     selectScreen.classList.remove('active');
     quizScreen.classList.add('active');
@@ -105,7 +137,7 @@ function handleAnswer(e) {
         
         e.target.classList.add('correct');
         gameState.score++;
-        document.getElementById('score').textContent = gameState.score;
+        scoreDisplay.textContent = gameState.score;
     } else {
         sounds.wrong.currentTime = 0;
         sounds.wrong.play().catch(err => console.log(err));
@@ -114,12 +146,11 @@ function handleAnswer(e) {
         const correctDiv = document.getElementById('correctAnswer');
         correctDiv.style.display = 'block';
         const opTxt = gameState.isDiv ? ':' : '×';
-        // Tekst met het juiste antwoord tonen
         correctDiv.textContent = `${gameState.currentNum1} ${opTxt} ${gameState.currentNum2} = ${gameState.correctAnswer}`;
     }
 
     gameState.currentQuestion++;
-    const delay = isCorrect ? 700 : 2500; // Iets langer wachten bij fout zodat kind kan lezen
+    const delay = isCorrect ? 700 : 2500;
 
     setTimeout(() => {
         document.getElementById('correctAnswer').style.display = 'none';
@@ -130,6 +161,7 @@ function handleAnswer(e) {
 
 let timerInt;
 function startTimer() {
+    if(timerInt) clearInterval(timerInt);
     timerInt = setInterval(() => {
         const sec = Math.floor((Date.now() - gameState.startTime) / 1000);
         document.getElementById('timer').textContent = `${Math.floor(sec/60)}:${(sec%60).toString().padStart(2,'0')}`;
@@ -147,7 +179,7 @@ function endGame() {
 
     const barbieMsgEl = document.getElementById('barbieMessage');
     if(finalScore >= 20) {
-        barbieMsgEl.textContent = "Wauw, goed gedaan! ✨";
+        barbieMsgEl.textContent = gameState.theme === 'blue' ? "Topscoorder! ⚽" : "Wauw, goed gedaan! ✨";
     } else {
         barbieMsgEl.textContent = "Goed gedaan, blijven oefenen! 💪";
     }

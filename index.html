@@ -7,8 +7,23 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="selectScreen" class="screen active">
+    <div id="themeScreen" class="screen active">
         <div class="container">
+            <h1>Kies een thema 🎨</h1>
+            <div class="theme-grid">
+                <button class="theme-btn barbie" onclick="setTheme('pink')">
+                    <span class="icon">💖</span><br>Roze & Hartjes
+                </button>
+                <button class="theme-btn football" onclick="setTheme('blue')">
+                    <span class="icon">⚽</span><br>Blauw & Voetbal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="selectScreen" class="screen">
+        <div class="container">
+            <button id="backToTheme" class="btn-back">⬅ Wijzig Thema</button>
             <h1>🎮 Maaltafels Oefenen</h1>
             <p class="subtitle">Selecteer welke maaltafels je wilt oefenen</p>
             
@@ -77,7 +92,7 @@
         <div class="container">
             <h1 id="endMessage">Klaar! 🎉</h1>
             <div id="barbieMessage" class="barbie-message">Goed gedaan!</div>
-            <div class="barbie-pop">💕</div>
+            <div id="themeEmoji" class="barbie-pop">💕</div>
             <div class="final-stats">
                 <div class="stat"><span class="label">Score:</span><span id="finalScore" class="value">0/25</span></div>
                 <div class="stat"><span class="label">Tijd:</span><span id="finalTime" class="value">0:00</span></div>
