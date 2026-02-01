@@ -221,3 +221,14 @@ body.theme-blue .btn-start { background: linear-gradient(135deg, #42a5f5 0%, #19
 body.theme-blue .checkbox-item, 
 body.theme-blue .answer-btn, 
 body.theme-blue .final-stats { border-color: #bbdefb; }
+
+
+.btn-retry {
+    background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%) !important;
+    border: 2px solid #e67e22 !important;
+}
+
+body.theme-blue .btn-retry {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%) !important;
+    border-color: #e65100 !important;
+}

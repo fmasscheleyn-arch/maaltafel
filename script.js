@@ -7,7 +7,9 @@ let gameState = {
     currentNum2: 0,
     correctAnswer: 0,
     isDiv: false,
-    theme: 'pink'
+    theme: 'pink',
+    wrongAnswers: [],
+    isRetryMode: false
 };
 
 const sounds = {
@@ -15,15 +17,14 @@ const sounds = {
     wrong: new Audio('wrong.wav')
 };
 
-// Schermen
 const themeScreen = document.getElementById('themeScreen');
 const selectScreen = document.getElementById('selectScreen');
 const quizScreen = document.getElementById('quizScreen');
 const endScreen = document.getElementById('endScreen');
 
-// Knoppen en displays
 const startBtn = document.getElementById('startBtn');
 const restartBtn = document.getElementById('restartBtn');
+const retryBtn = document.getElementById('retryBtn');
 const backToTheme = document.getElementById('backToTheme');
 const checkboxes = document.querySelectorAll('.checkbox-item input');
 const answerBtns = document.querySelectorAll('.answer-btn');
@@ -31,7 +32,6 @@ const progressBar = document.getElementById('progressBar');
 const themeEmoji = document.getElementById('themeEmoji');
 const scoreDisplay = document.getElementById('score');
 
-// --- THEMA LOGICA ---
 function setTheme(theme) {
     gameState.theme = theme;
     if (theme === 'blue') {
@@ -50,8 +50,17 @@ backToTheme.addEventListener('click', () => {
     themeScreen.classList.add('active');
 });
 
-// --- SPEL LOGICA ---
-startBtn.addEventListener('click', startGame);
+startBtn.addEventListener('click', () => {
+    gameState.wrongAnswers = [];
+    gameState.isRetryMode = false;
+    startGame();
+});
+
+retryBtn.addEventListener('click', () => {
+    gameState.isRetryMode = true;
+    startGame();
+});
+
 restartBtn.addEventListener('click', () => {
     endScreen.classList.remove('active');
     themeScreen.classList.add('active');
@@ -61,20 +70,18 @@ answerBtns.forEach(btn => btn.addEventListener('click', handleAnswer));
 
 function startGame() {
     gameState.selectedTables = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
-    if (gameState.selectedTables.length === 0) return alert('Kies een tafel!');
+    if (!gameState.isRetryMode && gameState.selectedTables.length === 0) return alert('Kies een tafel!');
     
     sounds.correct.load();
     sounds.wrong.load();
 
-    // Reset de data
     gameState.currentQuestion = 0;
     gameState.score = 0;
     gameState.startTime = Date.now();
-    
-    // CORRIGEER SCORE DISPLAY: Meteen op nul zetten in de HTML bij start
     scoreDisplay.textContent = '0';
     
     selectScreen.classList.remove('active');
+    endScreen.classList.remove('active');
     quizScreen.classList.add('active');
     
     generateQuestion();
@@ -82,35 +89,40 @@ function startGame() {
 }
 
 function generateQuestion() {
-    const progress = (gameState.currentQuestion / 25) * 100;
+    const totalQuestions = gameState.isRetryMode ? gameState.wrongAnswers.length : 25;
+    const progress = (gameState.currentQuestion / totalQuestions) * 100;
     progressBar.style.width = progress + '%';
 
-    const table = gameState.selectedTables[Math.floor(Math.random() * gameState.selectedTables.length)];
     const num1El = document.getElementById('num1');
     const num2El = document.getElementById('num2');
     const opEl = document.getElementById('operator');
 
-    if (table.startsWith('d')) {
-        gameState.isDiv = true;
-        const div = parseInt(table.substring(1));
-        gameState.currentNum2 = div;
-        gameState.correctAnswer = Math.floor(Math.random() * 10) + 1;
-        gameState.currentNum1 = gameState.correctAnswer * div;
-        
-        num1El.textContent = gameState.currentNum1;
-        num2El.textContent = gameState.currentNum2;
-        opEl.textContent = ':';
+    if (gameState.isRetryMode) {
+        const q = gameState.wrongAnswers[gameState.currentQuestion];
+        gameState.currentNum1 = q.n1;
+        gameState.currentNum2 = q.n2;
+        gameState.correctAnswer = q.ans;
+        gameState.isDiv = q.isDiv;
     } else {
-        gameState.isDiv = false;
-        const mult = parseInt(table);
-        gameState.currentNum1 = Math.floor(Math.random() * 10) + 1;
-        gameState.currentNum2 = mult;
-        gameState.correctAnswer = gameState.currentNum1 * mult;
-        
-        num1El.textContent = gameState.currentNum1;
-        num2El.textContent = gameState.currentNum2;
-        opEl.textContent = '×';
+        const table = gameState.selectedTables[Math.floor(Math.random() * gameState.selectedTables.length)];
+        if (table.startsWith('d')) {
+            gameState.isDiv = true;
+            const div = parseInt(table.substring(1));
+            gameState.currentNum2 = div;
+            gameState.correctAnswer = Math.floor(Math.random() * 10) + 1;
+            gameState.currentNum1 = gameState.correctAnswer * div;
+        } else {
+            gameState.isDiv = false;
+            const mult = parseInt(table);
+            gameState.currentNum1 = Math.floor(Math.random() * 10) + 1;
+            gameState.currentNum2 = mult;
+            gameState.correctAnswer = gameState.currentNum1 * mult;
+        }
     }
+
+    num1El.textContent = gameState.currentNum1;
+    num2El.textContent = gameState.currentNum2;
+    opEl.textContent = gameState.isDiv ? ':' : '×';
 
     let options = [gameState.correctAnswer];
     while(options.length < 6) {
@@ -128,19 +140,28 @@ function generateQuestion() {
 function handleAnswer(e) {
     const selected = parseInt(e.target.textContent);
     const isCorrect = selected === gameState.correctAnswer;
+    const totalQuestions = gameState.isRetryMode ? gameState.wrongAnswers.length : 25;
     
     answerBtns.forEach(b => b.disabled = true);
     
     if (isCorrect) {
         sounds.correct.currentTime = 0;
         sounds.correct.play().catch(err => console.log(err));
-        
         e.target.classList.add('correct');
         gameState.score++;
         scoreDisplay.textContent = gameState.score;
     } else {
         sounds.wrong.currentTime = 0;
         sounds.wrong.play().catch(err => console.log(err));
+        
+        if (!gameState.isRetryMode) {
+            gameState.wrongAnswers.push({
+                n1: gameState.currentNum1,
+                n2: gameState.currentNum2,
+                ans: gameState.correctAnswer,
+                isDiv: gameState.isDiv
+            });
+        }
 
         e.target.classList.add('wrong');
         const correctDiv = document.getElementById('correctAnswer');
@@ -150,11 +171,11 @@ function handleAnswer(e) {
     }
 
     gameState.currentQuestion++;
-    const delay = isCorrect ? 700 : 2500;
+    const delay = isCorrect ? 700 : 3500;
 
     setTimeout(() => {
         document.getElementById('correctAnswer').style.display = 'none';
-        if (gameState.currentQuestion < 25) generateQuestion();
+        if (gameState.currentQuestion < totalQuestions) generateQuestion();
         else endGame();
     }, delay);
 }
@@ -173,30 +194,33 @@ function endGame() {
     quizScreen.classList.remove('active');
     endScreen.classList.add('active');
     
-    const finalScore = gameState.score;
-    document.getElementById('finalScore').textContent = `${finalScore}/25`;
+    const totalPossible = gameState.isRetryMode ? gameState.wrongAnswers.length : 25;
+    document.getElementById('finalScore').textContent = `${gameState.score}/${totalPossible}`;
     document.getElementById('finalTime').textContent = document.getElementById('timer').textContent;
 
+    if (gameState.wrongAnswers.length > 0 && !gameState.isRetryMode) {
+        retryBtn.style.display = 'block';
+    } else {
+        retryBtn.style.display = 'none';
+    }
+
     const barbieMsgEl = document.getElementById('barbieMessage');
-    if(finalScore >= 20) {
+    if(gameState.score >= (totalPossible * 0.8)) {
         barbieMsgEl.textContent = gameState.theme === 'blue' ? "Topscoorder! ⚽" : "Wauw, goed gedaan! ✨";
     } else {
         barbieMsgEl.textContent = "Goed gedaan, blijven oefenen! 💪";
     }
 
-    let tekst;
-    if(finalScore >= 20) {
-        tekst = `Wauw! Jij behaalde een topscore van ${finalScore} op 25! Super gedaan!`;
-    } else {
-        tekst = `Jij behaalde een score van ${finalScore} op 25. Blijf goed oefenen, je kan het!`;
-    }
+    let tekst = `Jij behaalde een score van ${gameState.score} op ${totalPossible}.`;
+    if(gameState.score >= (totalPossible * 0.8)) tekst += " Super gedaan!";
+    else tekst += " Blijf goed oefenen!";
     
     speak(tekst);
 }
 
 function speak(text) {
-    const msg = new SpeechSynthesisUtterance();
-    msg.text = text;
+    window.speechSynthesis.cancel();
+    const msg = new SpeechSynthesisUtterance(text);
     msg.lang = 'nl-NL';
     msg.pitch = 1.4; 
     window.speechSynthesis.speak(msg);
