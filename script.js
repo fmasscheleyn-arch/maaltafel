@@ -11,8 +11,8 @@ let gameState = {
 };
 
 const sounds = {
-    correct: new Audio('https://www.soundjay.com/buttons/sounds/button-37a.mp3'),
-    wrong: new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3')
+    correct: new Audio('correct.wav'),
+    wrong: new Audio('wrong.wav')
 };
 
 // Schermen
